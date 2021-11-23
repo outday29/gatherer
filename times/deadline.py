@@ -5,34 +5,28 @@ import pandas as pd
 from constant import *
 from util import display, cache
 
-def get_deadlines(session, main_page_soup=None):
-    # If main_page already exists, read from that.
-    # Else, do query yourself
-    if main_page_soup:
-        deadline_data = []
-        target = main_page_soup.find_all("div", {"class": "event"})
-        for i in target:
-            # Don't take the AP classes
-            try:
-                if i.find("span").find("i") is not None and \
-                i.find("span").find("i")['title'] == "Course event":
-                    continue    
-            except KeyError:
-                pass
-            
-            entry = {
-                "Title": i.find("a").text,
-                "Subject": extract_deadline_subject(session, i.find("a")['href']),
-                "Date": i.find("div").text.replace(",", "")
-            }
-
-            display.display_dict(entry)
-            deadline_data.append(entry)
+def get_deadlines(session, main_page_soup):
+    deadline_data = []
+    target = main_page_soup.find_all("div", {"class": "event"})
+    for i in target:
+        # Don't take the AP classes
+        try:
+            if i.find("span").find("i") is not None and \
+            i.find("span").find("i")['title'] == "Course event":
+                continue    
+        except KeyError:
+            pass
         
-        cache.cache_dict(deadline_data, "deadlines.csv")
-    else:
-        # TODO
-        raise Exception()
+        entry = {
+            "Title": i.find("a").text,
+            "Subject": extract_deadline_subject(session, i.find("a")['href']),
+            "Date": i.find("div").text.replace(",", "")
+        }
+
+        display.display_dict(entry)
+        deadline_data.append(entry)
+    
+    cache.cache_dict(deadline_data, "deadlines.csv")
 
 def get_cached_deadlines():
     if (Path(DATA_PATH) / "deadlines.csv").is_file():
