@@ -16,6 +16,7 @@ def login_times(session):
         "logintoken": "",
     }
 
+    print("Logging in...")
     login_page = session.get(TIMES_LOGIN_URL)
     assert login_page.status_code == 200
 
@@ -26,6 +27,7 @@ def login_times(session):
 
     # TODO: Need to handle login fail cases
     assert main_page.status_code == 200
+    print("Login successful")
 
     return main_page
 

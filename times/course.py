@@ -4,6 +4,8 @@ from util.file import clean_name
 from itertools import count
 import time
 import os
+import zipfile
+import io
 
 from bs4 import BeautifulSoup
 
@@ -32,30 +34,69 @@ def download_course_material(session, course, url):
             break
 
         section_title = clean_name(section.find("span", {"class": "hidden sectionname"}).text)
+        file_path = COURSE_MATERIAL_PATH / course / section_title
         print("Now downloading section: ", section_title)
-        print(COURSE_MATERIAL_PATH / course / section_title)
-        (COURSE_MATERIAL_PATH / course / section_title).mkdir(parents=True, exist_ok=True)
+        print(file_path)
+        (file_path).mkdir(parents=True, exist_ok=True)
 
+        # Download non-folder resources
         for resource in section.select("li.activity.resource"):
-            material_url = resource.find("a")['href']
-            material_name = clean_name(resource.find("a").find("span").contents[0])
-            material_extension = get_material_extension(resource.select("img.activityicon")[0], material_name)
+            download_resource(session, resource, file_path)
+        
+        # Download folder resources
+        for folder in section.select("li.activity.folder"):
+            download_folder(session, folder, file_path)
 
-            if os.path.exists(COURSE_MATERIAL_PATH / course / section_title / (material_name + material_extension)):
-                print(f"File {material_name + material_extension} already exists.")
-                continue
+def download_resource(session, resource, file_path):
+    material_url = resource.find("a")['href']
+    material_name = clean_name(resource.find("a").find("span").contents[0])
+    material_extension = get_material_extension(resource.select("img.activityicon")[0], material_name)
 
-            else:
-                print(f"Now downloading {material_name + material_extension}")
-                material_content = session.get(material_url)
-                
-                assert material_content.status_code == 200
+    if os.path.exists(file_path / (material_name + material_extension)):
+        print(f"File {material_name + material_extension} already exists.")
+        return
 
-                with open(COURSE_MATERIAL_PATH / course / section_title / (material_name + material_extension) , "wb") as f:
-                    f.write(material_content.content)
-                    print(f"Successfully wrote {material_name + material_extension}")
-                    time.sleep(3)
-                
+    else:
+        print(f"Now downloading {material_name + material_extension}")
+        material_content = session.get(material_url)
+        
+        assert material_content.status_code == 200
+
+        with open(file_path / (material_name + material_extension) , "wb") as f:
+            f.write(material_content.content)
+            print(f"Successfully wrote {material_name + material_extension}")
+            time.sleep(3)
+
+def download_folder(session, folder, file_path):
+    folder_url = folder.find("a")['href']
+    folder_response = session.get(folder_url)
+
+    assert folder_response.status_code == 200
+
+    folder_html = BeautifulSoup(folder_response.text, 'lxml')
+    folder_title = clean_name(folder_html.find("h2").text)
+
+    if (file_path / folder_title).is_dir():
+        print(f"Folder {file_path / folder_title} already exists")
+        return
+
+    else:
+        download_form = folder_html.find("form", {"method": "post"})
+        download_url = download_form["action"]
+        data_payload = {
+            "id": download_form.find("input", {"type": "hidden", "name": "id"})["value"],
+            "sesskey": download_form.find("input", {"type": "hidden", "name": "sesskey"})["value"]
+        }
+        download_response = session.post(download_url, data=data_payload)
+
+        assert download_response.status_code == 200
+
+        folder_zip = download_response.content
+        with io.BytesIO(folder_zip) as f:
+            zip_ref = zipfile.ZipFile(f)
+            zip_ref.extractall(file_path / folder_title)
+        print(f"Successfully wrote folder{folder_title}")
+        time.sleep(3)
 
 def get_material_extension(img_html, material_name):
     file_type = img_html['src'].rsplit('/', 1)[-1]
