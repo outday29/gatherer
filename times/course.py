@@ -6,8 +6,14 @@ import time
 import os
 import zipfile
 import io
+import logging
 
 from bs4 import BeautifulSoup
+
+logging.basicConfig(level=logging.DEBUG, filename="log.txt", filemode='w')
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+logging.getLogger().addHandler(console)
 
 def gather_material(session, main_page_soup):
     course_list = main_page_soup.find("li", {"aria-labelledby": "label_2_11"}).find("ul")
@@ -18,7 +24,7 @@ def gather_material(session, main_page_soup):
         else:
             course_name = clean_name(course_info['title'])
             course_url = course_info['href']
-            print("Now downloading subject: ", course_name)
+            logging.info(f"Now downloading subject {course_name}")
             download_course_material(session, course_name, course_url)
 
 
@@ -35,8 +41,9 @@ def download_course_material(session, course, url):
 
         section_title = clean_name(section.find("span", {"class": "hidden sectionname"}).text)
         file_path = COURSE_MATERIAL_PATH / course / section_title
-        print("Now downloading section: ", section_title)
-        print(file_path)
+        logging.debug(f"Setting file_path at {file_path}")
+        logging.info(f"Now downloading section: {section_title}")
+
         (file_path).mkdir(parents=True, exist_ok=True)
 
         # Download non-folder resources
@@ -53,18 +60,18 @@ def download_resource(session, resource, file_path):
     material_extension = get_material_extension(resource.select("img.activityicon")[0], material_name)
 
     if os.path.exists(file_path / (material_name + material_extension)):
-        print(f"File {material_name + material_extension} already exists.")
+        logging.info(f"File {material_name + material_extension} already exists.")
         return
 
     else:
-        print(f"Now downloading {material_name + material_extension}")
+        logging.debug(f"Now downloading {material_name + material_extension}")
         material_content = session.get(material_url)
         
         assert material_content.status_code == 200
 
         with open(file_path / (material_name + material_extension) , "wb") as f:
             f.write(material_content.content)
-            print(f"Successfully wrote {material_name + material_extension}")
+            logging.info(f"Successfully wrote {material_name + material_extension}")
             time.sleep(3)
 
 def download_folder(session, folder, file_path):
@@ -77,7 +84,7 @@ def download_folder(session, folder, file_path):
     folder_title = clean_name(folder_html.find("h2").text)
 
     if (file_path / folder_title).is_dir():
-        print(f"Folder {file_path / folder_title} already exists")
+        logging.info(f"Folder {file_path / folder_title} already exists")
         return
 
     else:
@@ -95,12 +102,12 @@ def download_folder(session, folder, file_path):
         with io.BytesIO(folder_zip) as f:
             zip_ref = zipfile.ZipFile(f)
             zip_ref.extractall(file_path / folder_title)
-        print(f"Successfully wrote folder{folder_title}")
+        logging.info(f"Successfully wrote folder: {folder_title}")
         time.sleep(3)
 
 def get_material_extension(img_html, material_name):
     file_type = img_html['src'].rsplit('/', 1)[-1]
-    print("File type name is: ", file_type)
+    logging.debug(f"File type name is: {file_type}")
     if "spreadsheet" in file_type:
         return ".csv"
     
@@ -120,8 +127,8 @@ def get_material_extension(img_html, material_name):
         return ".html"
 
     elif "unknown" in file_type:
-        print(f"{material_name} has unknown file extension.")
-        print("This file will be named with no file extension")
+        logging.info(f"{material_name} has unknown file extension.")
+        logging.info("This file will be named with no file extension")
         return ""
 
     else:
