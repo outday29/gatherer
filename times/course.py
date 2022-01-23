@@ -15,7 +15,7 @@ console = logging.StreamHandler()
 console.setLevel(logging.INFO)
 logging.getLogger().addHandler(console)
 
-def gather_material(session, main_page_soup):
+def gather_material(session, main_page_soup, verbose):
     course_list = main_page_soup.find("li", {"aria-labelledby": "label_2_11"}).find("ul")
     for i in course_list.find_all("li"):
         course_info = i.find("a")
@@ -24,6 +24,13 @@ def gather_material(session, main_page_soup):
         else:
             course_name = clean_name(course_info['title'])
             course_url = course_info['href']
+            if verbose:
+                logging.info(f"Download {course_name}? (y/n): ")
+                user_input = input()
+                logging.debug(f"User entered {user_input}.")
+                if user_input.lower() not in ["y", "yes", ""]:
+                    logging.debug(f"Skipping f{course_name}.")
+                    continue
             logging.info(f"Now downloading subject {course_name}")
             download_course_material(session, course_name, course_url)
 

@@ -5,11 +5,10 @@ import pandas as pd
 from constant import *
 from util import display, cache
 
-def get_deadlines(session, main_page_soup):
+def gather_deadlines(session, main_page_soup):
     deadline_data = []
     target = main_page_soup.find_all("div", {"class": "event"})
     for i in target:
-        # Don't take the AP classes
         try:
             if i.find("span").find("i") is not None and \
             i.find("span").find("i")['title'] == "Course event":
