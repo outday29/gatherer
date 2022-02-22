@@ -62,6 +62,12 @@ def download_course_material(session, course, url):
             download_folder(session, folder, file_path)
 
 def download_resource(session, resource, file_path):
+    if resource.find("a") is None:
+        # Will run when the resource is not available.
+        material_name = resource.find("span").text
+        logging.info(f"Cannot find link for {material_name}")
+        return
+    
     material_url = resource.find("a")['href']
     material_name = clean_name(resource.find("a").find("span").contents[0])
     material_extension = get_material_extension(resource.select("img.activityicon")[0], material_name)
