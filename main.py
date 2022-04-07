@@ -12,15 +12,15 @@ from bs4 import BeautifulSoup
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-c", "--course", 
-                    help="Download course materials", 
+                    help="download course materials", 
                     action="store_true",
                     default=False)
 parser.add_argument("-s", "--single",
-                    help="Prompt before downloading course materials",
+                    help="prompt before downloading course materials",
                     action="store_true",
                     default=False)
 parser.add_argument("-d", "--deadlines",
-                    help="Get deadlines details. Results are cached",
+                    help="get deadlines details. Results are cached",
                     action="store_true",
                     default=False)
 args = parser.parse_args()

@@ -46,7 +46,7 @@ def download_course_material(session, course, url):
         if section is None:
             break
 
-        section_title = clean_name(section.find("span", {"class": "hidden sectionname"}).text)
+        section_title = find_section_title(section)
         file_path = COURSE_MATERIAL_PATH / course / section_title
         logging.debug(f"Setting file_path at {file_path}")
         logging.info(f"Now downloading section: {section_title}")
@@ -60,6 +60,13 @@ def download_course_material(session, course, url):
         # Download folder resources
         for folder in section.select("li.activity.folder"):
             download_folder(session, folder, file_path)
+
+def find_section_title(section):
+    title = section.find("span", {"class": "hidden sectionname"}) \
+            or section.find("h3", {"class": "sectionname"}) \
+            or section['aria-label']
+    title = title if type(title) == str else title.text
+    return clean_name(title)
 
 def download_resource(session, resource, file_path):
     if resource.find("a") is None:
