@@ -8,7 +8,7 @@ def cache_dict(arr, file_name):
         for i, col in enumerate(arr[0].keys()):
             if i != 0:
                 f.write(',')
-            f.write(i)
+            f.write(str(i))
         f.write('\n')
 
         for i in arr:

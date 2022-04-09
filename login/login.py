@@ -41,6 +41,7 @@ def get_login_detail():
         personal['username'] = username
         personal['password'] = password
         print("Your username and password will be stored in: " + str(PERSONAL_PATH))
+        DATA_PATH.mkdir(parents=True, exist_ok=True)
         with open(PERSONAL_PATH, 'w') as f:
             json.dump(personal, f)
 

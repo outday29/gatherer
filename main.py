@@ -32,4 +32,4 @@ with requests.Session() as s:
         gather_material(s, main_page_soup, verbose=args.single)
     
     if args.deadlines:
-        gather_deadlines()
+        gather_deadlines(s, main_page_soup)
