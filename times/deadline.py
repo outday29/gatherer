@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from pathlib import Path
 import pandas as pd
 
-from constant import *
+from config import *
 from util import display, cache
 
 def gather_deadlines(session, main_page_soup):

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from constant import *
+from config import *
 
 def cache_dict(arr, file_name):
     Path(DATA_PATH).mkdir(parents=True, exist_ok=True)

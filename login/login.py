@@ -3,7 +3,7 @@ import json
 
 from bs4 import BeautifulSoup
 
-from constant import *
+from config import *
 
 
 def login_times(session):

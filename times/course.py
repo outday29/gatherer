@@ -1,4 +1,4 @@
-from constant import *
+from config import *
 from util.file import clean_name
 
 from itertools import count
@@ -10,7 +10,7 @@ import logging
 
 from bs4 import BeautifulSoup
 
-logging.basicConfig(level=logging.DEBUG, filename="log.txt", filemode='w')
+logging.basicConfig(level=logging.DEBUG, filename=LOG_PATH, filemode='w')
 console = logging.StreamHandler()
 console.setLevel(logging.INFO)
 logging.getLogger().addHandler(console)
