@@ -55,11 +55,21 @@ def download_course_material(session, course, url):
 
         # Download non-folder resources
         for resource in section.select("li.activity.resource"):
-            download_resource(session, resource, file_path)
+            try:
+                download_resource(session, resource, file_path)
+            # Attribute Error can happen when BeautifulSoup does not locate the right html
+            except AttributeError as e:
+                logging.info(f"Cannot download {resource}")
+                logging.debug(e)
         
         # Download folder resources
         for folder in section.select("li.activity.folder"):
-            download_folder(session, folder, file_path)
+            try:
+                download_folder(session, folder, file_path)
+            # Attribute Error can happen when BeautifulSoup does not locate the right html
+            except AttributeError as e:
+                logging.info(f"Cannot download {resource}")
+                logging.debug(e)
 
 def find_section_title(section):
     title = section.find("span", {"class": "hidden sectionname"}) \
