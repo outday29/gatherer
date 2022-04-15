@@ -4,7 +4,7 @@ import json
 from bs4 import BeautifulSoup
 
 from config import *
-
+from getpass4 import getpass
 
 def login_times(session):
     username, password = get_login_detail()
@@ -36,8 +36,8 @@ def get_login_detail():
         print("It looks like you are logining in for the first time.")
         print("Please provide your username and password information.")
         personal = dict()
-        username = input("Username: ")
-        password = input("Password: ")
+        username = getpass("Username: ")
+        password = getpass("Password: ")
         personal['username'] = username
         personal['password'] = password
         print("Your username and password will be stored in: " + str(PERSONAL_PATH))
