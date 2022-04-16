@@ -36,6 +36,10 @@ For more information, one can read the help information:
 python main.py -h
 ```
 
+Demo
+----
+https://user-images.githubusercontent.com/60956360/163658812-68f26f02-f0bb-4080-b32a-ec9c1c851977.mp4
+
 Note
 ----
 1. There will be a 3 seconds timeout after downloading each item to prevent overloading the TIMeS servers.
