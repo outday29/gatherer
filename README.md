@@ -43,8 +43,3 @@ https://user-images.githubusercontent.com/60956360/163658812-68f26f02-f0bb-4080-
 Note
 ----
 1. There will be a 3 seconds timeout after downloading each item to prevent overloading the TIMeS servers.
-
-Author
-------
-Ong Eng Kheng 
-- Github: https://github.com/Whatever929/
